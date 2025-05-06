@@ -9,6 +9,8 @@ const apiUrl = 'https://flixhive-cf7fbbd939d2.herokuapp.com/';
 @Injectable({
   providedIn: 'root'
 })
+
+//assignment in 6.2 named UserRegistrationService ?? 
 export class FetchApiDataService {
   // Inject the HttpClient module to the constructor params
   constructor(private http: HttpClient) { }
