@@ -3,19 +3,9 @@
   <h1>
     Welcome to myFlix!
   </h1>
-    <!-- adding the click event on the signup button to open the dialog -->
-  <button
-    mat-raised-button
-    (click)="openUserRegistrationDialog()"
-    style="margin-right: 10px;"
-    color="primary"
-  >
+  <!-- adding the click event on the signup button to open the dialog -->
+  <button mat-raised-button (click)="openUserRegistrationDialog()" style="margin-right: 10px;" color="primary">
     Sign Up
   </button>
-  <button
-    mat-raised-button
-    color="primary"
-  >
-    Login
-  </button>
+  <button mat-raised-button color="primary" (click)="openUserLoginDialog()">Login</button>
 </div>
