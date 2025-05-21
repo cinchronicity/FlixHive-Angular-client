@@ -34,7 +34,7 @@ export class UserLoginFormComponent implements OnInit {
         this.snackBar.open('Login successful!', 'OK', {
           duration: 2000,
         });
-        // this.router.navigate(['movies']); // Navigate to the movies page
+        this.router.navigate(['movies']); // Navigate to the movies page
       },
       (error) => {
         console.error('Error:', error);
