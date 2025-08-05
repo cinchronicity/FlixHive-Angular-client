@@ -26,9 +26,31 @@ export class UserLoginFormComponent implements OnInit {
   loginUser(): void {
     this.fetchApiData.userLogin(this.loginData).subscribe(
       (result) => {
+        console.log('Login result:', result);
+        console.log('User object:', result.user);
+        
         // Store the user and token in localStorage
         localStorage.setItem('user', JSON.stringify(result.user));
         localStorage.setItem('token', result.token);
+        
+        // Try multiple possible username field names from the response
+        const username = result.user?.Username || 
+                        result.user?.username || 
+                        result.user?.name || 
+                        result.user?.userName ||
+                        result.username ||  // Sometimes username is at root level
+                        this.loginData.username; // Fallback to what user entered
+        
+        console.log('Extracted username:', username);
+        
+        if (username) {
+          localStorage.setItem('username', username);
+          console.log('Stored username in localStorage:', username);
+        } else {
+          console.error('No username found in login response');
+          console.error('Available fields in result:', Object.keys(result));
+          console.error('Available fields in result.user:', Object.keys(result.user || {}));
+        }
 
         this.dialogRef.close(); // Close the dialog on success
         this.snackBar.open('Login successful!', 'OK', {
@@ -37,7 +59,7 @@ export class UserLoginFormComponent implements OnInit {
         this.router.navigate(['movies']); // Navigate to the movies page
       },
       (error) => {
-        console.error('Error:', error);
+        console.error('Login error:', error);
         this.snackBar.open('Login failed. Please try again.', 'OK', {
           duration: 2000,
         });

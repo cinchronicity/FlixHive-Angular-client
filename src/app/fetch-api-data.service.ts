@@ -43,9 +43,30 @@ export class FetchApiDataService {
 
   // Making the api call for the user login endpoint
   public userLogin(userDetails: any): Observable<any> {
-    console.log(userDetails);
+    console.log('userLogin request:', userDetails);
     return this.http.post(apiUrl + '/login', userDetails).pipe(
+      map(this.extractResponseData),
       catchError(this.handleError)
+    );
+  }
+
+  // Test method to check login response structure
+  public testLogin(userDetails: any): Observable<any> {
+    console.log('Testing login with:', userDetails);
+    return this.http.post(apiUrl + '/login', userDetails).pipe(
+      map((response: any) => {
+        console.log('Raw login response:', response);
+        console.log('Response keys:', Object.keys(response));
+        if (response.user) {
+          console.log('User object keys:', Object.keys(response.user));
+          console.log('Full user object:', response.user);
+        }
+        return response;
+      }),
+      catchError((error) => {
+        console.error('Login test error:', error);
+        return this.handleError(error);
+      })
     );
   }
 
@@ -104,7 +125,12 @@ export class FetchApiDataService {
   // Get user
   public getUser(): Observable<any> {
     const token = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
+    const username = this.getUsername();
+    
+    if (!username) {
+      return throwError('User not authenticated');
+    }
+    
     return this.http.get(apiUrl + `/users/${username}`, {
       headers: new HttpHeaders({
         Authorization: 'Bearer ' + token,
@@ -118,7 +144,12 @@ export class FetchApiDataService {
   // Get favorite movies for a user
   public getFavoriteMovies(): Observable<any> {
     const token = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
+    const username = this.getUsername();
+    
+    if (!username) {
+      return throwError('User not authenticated');
+    }
+    
     return this.http.get(apiUrl + `/users/${username}/favorites`, {
       headers: new HttpHeaders({
         Authorization: 'Bearer ' + token,
@@ -132,7 +163,12 @@ export class FetchApiDataService {
   // Add a movie to favorite Movies
   public addFavoriteMovie(movieId: string): Observable<any> {
     const token = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
+    const username = this.getUsername();
+    
+    if (!username) {
+      return throwError('User not authenticated');
+    }
+    
     return this.http.post(apiUrl + `/users/${username}/favorites/${movieId}`, {}, {
       headers: new HttpHeaders({
         Authorization: 'Bearer ' + token,
@@ -146,7 +182,12 @@ export class FetchApiDataService {
   // Edit user
   public editUser(userDetails: any): Observable<any> {
     const token = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
+    const username = this.getUsername();
+    
+    if (!username) {
+      return throwError('User not authenticated');
+    }
+    
     return this.http.put(apiUrl + `/users/${username}`, userDetails, {
       headers: new HttpHeaders({
         Authorization: 'Bearer ' + token,
@@ -160,7 +201,12 @@ export class FetchApiDataService {
   // Delete user
   public deleteUser(): Observable<any> {
     const token = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
+    const username = this.getUsername();
+    
+    if (!username) {
+      return throwError('User not authenticated');
+    }
+    
     return this.http.delete(apiUrl + `/users/${username}`, {
       headers: new HttpHeaders({
         Authorization: 'Bearer ' + token,
@@ -174,7 +220,12 @@ export class FetchApiDataService {
   // Delete a movie from the favorite movies
   public deleteFavoriteMovie(movieId: string): Observable<any> {
     const token = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
+    const username = this.getUsername();
+    
+    if (!username) {
+      return throwError('User not authenticated');
+    }
+    
     return this.http.delete(apiUrl + `/users/${username}/favorites/${movieId}`, {
       headers: new HttpHeaders({
         Authorization: 'Bearer ' + token,
@@ -183,5 +234,36 @@ export class FetchApiDataService {
       map(this.extractResponseData),
       catchError(this.handleError)
     );
+  }
+
+  // Helper method to get username from localStorage with fallback
+  private getUsername(): string | null {
+    let username = localStorage.getItem('username');
+    console.log('getUsername - direct username from localStorage:', username);
+    
+    // Fallback: try to get username from stored user object
+    if (!username) {
+      const userObj = localStorage.getItem('user');
+      console.log('getUsername - user object from localStorage:', userObj);
+      if (userObj) {
+        try {
+          const user = JSON.parse(userObj);
+          console.log('getUsername - parsed user object:', user);
+          // Try different possible field names for username
+          username = user.Username || user.username || user.name || user.userName;
+          console.log('getUsername - extracted username from user object:', username);
+          // Store it for future use
+          if (username) {
+            localStorage.setItem('username', username);
+            console.log('getUsername - stored username for future use');
+          }
+        } catch (error) {
+          console.error('getUsername - error parsing user object:', error);
+        }
+      }
+    }
+    
+    console.log('getUsername - final username:', username);
+    return username;
   }
 }

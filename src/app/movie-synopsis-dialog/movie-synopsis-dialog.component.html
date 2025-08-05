@@ -1,0 +1,26 @@
+<div class="dialog-container">
+  <h2 mat-dialog-title>{{ data.movie?.title || 'Movie Details' }}</h2>
+  
+  <mat-dialog-content>
+    <div class="movie-details">
+      <div class="movie-header">
+        <img [src]="data.movie?.imageURL" [alt]="data.movie?.title" *ngIf="data.movie?.imageURL" class="movie-image">
+        <div class="movie-info">
+          <h3>{{ data.movie?.title }}</h3>
+          <p><strong>Director:</strong> {{ data.movie?.director?.name }}</p>
+          <p><strong>Genre:</strong> {{ data.movie?.genre?.name }}</p>
+          <p><strong>Rating:</strong> {{ data.movie?.rating }}/10</p>
+          <p><strong>Release Year:</strong> {{ data.movie?.releaseYear || 'Not available' }}</p>
+        </div>
+      </div>
+      <div class="synopsis">
+        <h4>Synopsis</h4>
+        <p>{{ data.movie?.description || 'No synopsis available.' }}</p>
+      </div>
+    </div>
+  </mat-dialog-content>
+  
+  <mat-dialog-actions align="end">
+    <button mat-raised-button color="primary" (click)="onClose()">Close</button>
+  </mat-dialog-actions>
+</div>
