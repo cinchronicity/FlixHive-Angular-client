@@ -40,10 +40,8 @@
                     Synopsis
                 </button>
             </div>
-            <button mat-icon-button 
-                    [color]="isFavorite(movie._id) ? 'warn' : 'primary'"
-                    (click)="toggleFavorite(movie)"
-                    [matTooltip]="isFavorite(movie._id) ? 'Remove from favorites' : 'Add to favorites'">
+            <button mat-icon-button [color]="isFavorite(movie._id) ? 'warn' : 'primary'" (click)="toggleFavorite(movie)"
+                [matTooltip]="isFavorite(movie._id) ? 'Remove from favorites' : 'Add to favorites'">
                 <mat-icon>{{ isFavorite(movie._id) ? 'favorite' : 'favorite_border' }}</mat-icon>
             </button>
         </mat-card-actions>

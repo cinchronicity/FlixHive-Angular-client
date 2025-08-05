@@ -12,23 +12,23 @@
     font-weight: 500;
     text-align: center;
   }
-  
+
   .details {
     display: flex;
     gap: 30px;
     margin-bottom: 20px;
     justify-content: center;
-    
+
     p {
       margin: 0;
       font-size: 1rem;
-      
+
       strong {
         color: #3f51b5;
       }
     }
   }
-  
+
   .bio {
     font-size: 1.1rem;
     line-height: 1.6;
@@ -54,7 +54,7 @@ mat-dialog-actions {
     min-width: 300px;
     padding: 15px;
   }
-  
+
   .details {
     flex-direction: column;
     gap: 10px;

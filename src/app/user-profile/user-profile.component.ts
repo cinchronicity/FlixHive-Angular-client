@@ -50,12 +50,33 @@ export class UserProfileComponent implements OnInit {
   }
 
   /**
-   * Get user's favorite movies
+   * Get user's favorite movies with full movie details
    */
   getFavoriteMovies(): void {
-    this.fetchApiData.getFavoriteMovies().subscribe((resp: any) => {
-      this.favoriteMovies = resp;
-    });
+    // First get the favorite movie IDs
+    this.fetchApiData.getFavoriteMovies().subscribe(
+      (favoriteIds: string[]) => {
+        if (favoriteIds.length === 0) {
+          this.favoriteMovies = [];
+          return;
+        }
+
+        // Then get all movies and filter to show only favorites
+        this.fetchApiData.getAllMovies().subscribe(
+          (allMovies: any[]) => {
+            this.favoriteMovies = allMovies.filter((movie) =>
+              favoriteIds.includes(movie._id)
+            );
+          },
+          (error) => {
+            console.error('Error getting all movies:', error);
+          }
+        );
+      },
+      (error) => {
+        console.error('Error getting favorite movie IDs:', error);
+      }
+    );
   }
 
   /**

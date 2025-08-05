@@ -16,7 +16,7 @@ import { MovieSynopsisDialogComponent } from '../movie-synopsis-dialog/movie-syn
 //needs to accept movies from API and nothing else
 export class MovieCardComponent implements OnInit {
   movies: any[] = [];
-  favoriteMovies: any[] = [];
+  favoriteMovieIds: string[] = []; // Changed to store IDs instead of full objects
 
   constructor(
     public fetchApiData: FetchApiDataService,
@@ -26,17 +26,6 @@ export class MovieCardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Debug: Check authentication status
-    const token = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
-    const user = localStorage.getItem('user');
-    
-    console.log('Authentication status:', { 
-      hasToken: !!token, 
-      hasUsername: !!username, 
-      hasUser: !!user 
-    });
-    
     this.getMovies();
     this.getFavoriteMovies();
   }
@@ -44,34 +33,36 @@ export class MovieCardComponent implements OnInit {
   getMovies(): void {
     this.fetchApiData.getAllMovies().subscribe((resp: any) => {
       this.movies = resp;
-      console.log(this.movies);
       return this.movies;
     });
   }
 
   /**
-   * Get user's favorite movies
+   * Get user's favorite movie IDs
    */
   getFavoriteMovies(): void {
-    this.fetchApiData.getFavoriteMovies().subscribe((resp: any) => {
-      this.favoriteMovies = resp;
-    }, (error) => {
-      console.error('Error getting favorite movies:', error);
-      // If user is not authenticated, redirect to welcome page
-      if (error.includes && error.includes('User not authenticated')) {
-        this.snackBar.open('Please login to access favorites', 'OK', {
-          duration: 3000
-        });
-        this.router.navigate(['welcome']);
+    this.fetchApiData.getFavoriteMovies().subscribe(
+      (resp: any) => {
+        this.favoriteMovieIds = resp; // This is now an array of movie IDs
+      },
+      (error) => {
+        console.error('Error getting favorite movies:', error);
+        // If user is not authenticated, redirect to welcome page
+        if (error.includes && error.includes('User not authenticated')) {
+          this.snackBar.open('Please login to access favorites', 'OK', {
+            duration: 3000,
+          });
+          this.router.navigate(['welcome']);
+        }
       }
-    });
+    );
   }
 
   /**
    * Check if a movie is in favorites
    */
   isFavorite(movieId: string): boolean {
-    return this.favoriteMovies.some(movie => movie._id === movieId);
+    return this.favoriteMovieIds.includes(movieId);
   }
 
   /**
@@ -89,32 +80,38 @@ export class MovieCardComponent implements OnInit {
    * Add movie to favorites
    */
   addFavorite(movieId: string): void {
-    this.fetchApiData.addFavoriteMovie(movieId).subscribe((result) => {
-      this.snackBar.open('Movie added to favorites!', 'OK', {
-        duration: 2000
-      });
-      this.getFavoriteMovies(); // Refresh favorites list
-    }, (error) => {
-      this.snackBar.open('Failed to add movie to favorites', 'OK', {
-        duration: 2000
-      });
-    });
+    this.fetchApiData.addFavoriteMovie(movieId).subscribe(
+      (result) => {
+        this.snackBar.open('Movie added to favorites!', 'OK', {
+          duration: 2000,
+        });
+        this.getFavoriteMovies(); // Refresh favorites list
+      },
+      (error) => {
+        this.snackBar.open('Failed to add movie to favorites', 'OK', {
+          duration: 2000,
+        });
+      }
+    );
   }
 
   /**
    * Remove movie from favorites
    */
   removeFavorite(movieId: string): void {
-    this.fetchApiData.deleteFavoriteMovie(movieId).subscribe((result) => {
-      this.snackBar.open('Movie removed from favorites', 'OK', {
-        duration: 2000
-      });
-      this.getFavoriteMovies(); // Refresh favorites list
-    }, (error) => {
-      this.snackBar.open('Failed to remove movie from favorites', 'OK', {
-        duration: 2000
-      });
-    });
+    this.fetchApiData.deleteFavoriteMovie(movieId).subscribe(
+      (result) => {
+        this.snackBar.open('Movie removed from favorites', 'OK', {
+          duration: 2000,
+        });
+        this.getFavoriteMovies(); // Refresh favorites list
+      },
+      (error) => {
+        this.snackBar.open('Failed to remove movie from favorites', 'OK', {
+          duration: 2000,
+        });
+      }
+    );
   }
 
   /**
@@ -123,7 +120,7 @@ export class MovieCardComponent implements OnInit {
   openGenreDialog(genre: any): void {
     this.dialog.open(MovieGenreDialogComponent, {
       data: { genre: genre },
-      width: '500px'
+      width: '500px',
     });
   }
 
@@ -133,7 +130,7 @@ export class MovieCardComponent implements OnInit {
   openDirectorDialog(director: any): void {
     this.dialog.open(MovieDirectorDialogComponent, {
       data: { director: director },
-      width: '550px'
+      width: '550px',
     });
   }
 
@@ -144,7 +141,7 @@ export class MovieCardComponent implements OnInit {
     this.dialog.open(MovieSynopsisDialogComponent, {
       data: { movie: movie },
       width: '700px',
-      maxWidth: '90vw'
+      maxWidth: '90vw',
     });
   }
 

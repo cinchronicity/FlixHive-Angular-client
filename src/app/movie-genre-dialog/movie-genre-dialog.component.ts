@@ -5,7 +5,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
   selector: 'app-movie-genre-dialog',
   standalone: false,
   templateUrl: './movie-genre-dialog.component.html',
-  styleUrl: './movie-genre-dialog.component.scss'
+  styleUrl: './movie-genre-dialog.component.scss',
 })
 export class MovieGenreDialogComponent {
   constructor(

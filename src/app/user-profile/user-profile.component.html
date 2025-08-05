@@ -87,16 +87,17 @@
         <div *ngIf="favoriteMovies.length > 0" class="favorites-grid">
           <mat-card *ngFor="let movie of favoriteMovies" class="movie-card">
             <mat-card-header>
-              <mat-card-title>{{ movie.Title }}</mat-card-title>
+              <mat-card-title>{{ movie.title }}</mat-card-title>
               <button mat-icon-button (click)="removeFavorite(movie._id)" matTooltip="Remove from favorites">
                 <mat-icon>favorite</mat-icon>
               </button>
             </mat-card-header>
-            <img mat-card-image [src]="movie.ImagePath" [alt]="movie.Title" *ngIf="movie.ImagePath">
+            <img mat-card-image [src]="movie.imageURL" [alt]="movie.title" *ngIf="movie.imageURL">
             <mat-card-content>
-              <p><strong>Director:</strong> {{ movie.Director?.Name }}</p>
-              <p><strong>Genre:</strong> {{ movie.Genre?.Name }}</p>
-              <p class="description">{{ movie.Description }}</p>
+              <p><strong>Director:</strong> {{ movie.director?.name }}</p>
+              <p><strong>Genre:</strong> {{ movie.genre?.name }}</p>
+              <p><strong>Rating:</strong> {{ movie.rating }}/10</p>
+              <p class="description">{{ movie.description }}</p>
             </mat-card-content>
           </mat-card>
         </div>

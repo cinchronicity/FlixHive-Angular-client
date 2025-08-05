@@ -5,7 +5,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
   selector: 'app-movie-synopsis-dialog',
   standalone: false,
   templateUrl: './movie-synopsis-dialog.component.html',
-  styleUrl: './movie-synopsis-dialog.component.scss'
+  styleUrl: './movie-synopsis-dialog.component.scss',
 })
 export class MovieSynopsisDialogComponent {
   constructor(
