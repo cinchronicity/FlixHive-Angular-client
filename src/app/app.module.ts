@@ -20,6 +20,7 @@ import { WelcomePageComponent } from './welcome-page/welcome-page.component';
 import { RouterModule, Routes } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSelectModule } from '@angular/material/select';
 import { UserProfileComponent } from './user-profile/user-profile.component';
 import { MovieGenreDialogComponent } from './movie-genre-dialog/movie-genre-dialog.component';
 import { MovieDirectorDialogComponent } from './movie-director-dialog/movie-director-dialog.component';
@@ -58,6 +59,7 @@ const appRoutes: Routes = [
     FormsModule,
     MatIconModule,
     MatTooltipModule,
+    MatSelectModule,
     // Import the RouterModule and add the routes
     RouterModule.forRoot(appRoutes),
   ],

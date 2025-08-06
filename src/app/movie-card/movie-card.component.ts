@@ -16,7 +16,15 @@ import { MovieSynopsisDialogComponent } from '../movie-synopsis-dialog/movie-syn
 //needs to accept movies from API and nothing else
 export class MovieCardComponent implements OnInit {
   movies: any[] = [];
-  favoriteMovieIds: string[] = []; // Changed to store IDs instead of full objects
+  filteredMovies: any[] = [];
+  favoriteMovieIds: string[] = []; // Changed to store IDs instead of full objects  // Search and Filter properties
+  searchTerm: string = '';
+  selectedGenre: string = '';
+  availableGenres: string[] = [];
+  showFavoritesOnly: boolean = false;
+
+  // Loading property
+  isLoading: boolean = true;
 
   constructor(
     public fetchApiData: FetchApiDataService,
@@ -26,6 +34,7 @@ export class MovieCardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.isLoading = true;
     this.getMovies();
     this.getFavoriteMovies();
   }
@@ -33,8 +42,78 @@ export class MovieCardComponent implements OnInit {
   getMovies(): void {
     this.fetchApiData.getAllMovies().subscribe((resp: any) => {
       this.movies = resp;
+      this.extractGenres();
+      this.filterMovies();
+      this.isLoading = false;
       return this.movies;
     });
+  }
+
+  /**
+   * Extract unique genres from movies for filter dropdown
+   */
+  extractGenres(): void {
+    const genres = this.movies
+      .map((movie) => movie.genre?.name)
+      .filter(Boolean);
+    this.availableGenres = [...new Set(genres)].sort();
+  }
+
+  /**
+   * Filter movies based on search term, genre, and favorites only toggle
+   */
+  filterMovies(): void {
+    let filtered = [...this.movies];
+
+    // Filter by search term
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (movie) =>
+          movie.title?.toLowerCase().includes(term) ||
+          movie.director?.name?.toLowerCase().includes(term) ||
+          movie.genre?.name?.toLowerCase().includes(term)
+      );
+    }
+
+    // Filter by genre
+    if (this.selectedGenre) {
+      filtered = filtered.filter(
+        (movie) => movie.genre?.name === this.selectedGenre
+      );
+    }
+
+    // Filter by favorites only
+    if (this.showFavoritesOnly) {
+      filtered = filtered.filter((movie) => this.isFavorite(movie._id));
+    }
+
+    this.filteredMovies = filtered;
+  }
+
+  /**
+   * Clear all filters
+   */
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.selectedGenre = '';
+    this.showFavoritesOnly = false;
+    this.filterMovies();
+  }
+
+  /**
+   * Toggle favorites only filter
+   */
+  toggleFavoritesOnly(): void {
+    this.showFavoritesOnly = !this.showFavoritesOnly;
+    this.filterMovies();
+  }
+
+  /**
+   * Track by function for ngFor performance
+   */
+  trackByMovieId(index: number, movie: any): string {
+    return movie._id;
   }
 
   /**
@@ -86,6 +165,7 @@ export class MovieCardComponent implements OnInit {
           duration: 2000,
         });
         this.getFavoriteMovies(); // Refresh favorites list
+        this.filterMovies(); // Update filtered movies if favorites-only is active
       },
       (error) => {
         this.snackBar.open('Failed to add movie to favorites', 'OK', {
@@ -105,6 +185,7 @@ export class MovieCardComponent implements OnInit {
           duration: 2000,
         });
         this.getFavoriteMovies(); // Refresh favorites list
+        this.filterMovies(); // Update filtered movies if favorites-only is active
       },
       (error) => {
         this.snackBar.open('Failed to remove movie from favorites', 'OK', {

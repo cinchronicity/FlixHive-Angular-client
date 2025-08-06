@@ -1,47 +1,123 @@
-<!-- Navigation Bar -->
+<!DOCTYPE html>
+<!-- Enhanced Navigation Bar -->
 <div class="nav-bar">
-    <div class="nav-title">
-        <h2>FlixHive</h2>
+    <div class="nav-content">
+        <div class="nav-title">
+            <mat-icon class="logo-icon">local_movies</mat-icon>
+            <h2>FlixHive</h2>
+        </div>
+        <div class="nav-actions">
+            <button mat-raised-button color="primary" routerLink="/profile">
+                <mat-icon>person</mat-icon>
+                Profile
+            </button>
+            <button mat-raised-button color="accent" (click)="logout()">
+                <mat-icon>logout</mat-icon>
+                Logout
+            </button>
+        </div>
     </div>
-    <div class="nav-actions">
-        <button mat-raised-button color="primary" routerLink="/profile">
-            <mat-icon>person</mat-icon>
-            Profile
-        </button>
-        <button mat-raised-button color="accent" (click)="logout()">
-            <mat-icon>logout</mat-icon>
-            Logout
+</div>
+
+<!-- Enhanced Search and Filter Section -->
+<div class="search-filter-section">
+    <div class="search-container">
+        <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search movies...</mat-label>
+            <input matInput [(ngModel)]="searchTerm" (input)="filterMovies()"
+                placeholder="Search by title, director, or genre">
+            <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Filter by Genre</mat-label>
+            <mat-select [(value)]="selectedGenre" (selectionChange)="filterMovies()">
+                <mat-option value="">All Genres</mat-option>
+                <mat-option *ngFor="let genre of availableGenres" [value]="genre">{{genre}}</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+    <div class="results-info">
+        <span class="results-count">{{filteredMovies.length}} of {{movies.length}} movies</span>
+        <button mat-icon-button (click)="toggleFavoritesOnly()" [color]="showFavoritesOnly ? 'accent' : ''"
+            matTooltip="Show favorites only">
+            <mat-icon>{{showFavoritesOnly ? 'favorite' : 'favorite_border'}}</mat-icon>
         </button>
     </div>
 </div>
 
-<!-- ngFor used to return a list of movies -->
-<div class="movies-container">
-    <mat-card *ngFor="let movie of movies;" class="movie-card">
-        <mat-card-header>
-            <mat-card-title>{{movie.title}}</mat-card-title>
-            <mat-card-subtitle>Directed by: {{movie.director?.name}}</mat-card-subtitle>
-            <mat-card-subtitle class="rating">Rating: {{ movie.rating }}</mat-card-subtitle>
+<!-- Loading State -->
+<div class="loading-container" *ngIf="isLoading">
+    <div class="skeleton-cards">
+        <div class="skeleton-card" *ngFor="let item of [1,2,3,4,5,6]">
+            <div class="skeleton-image"></div>
+            <div class="skeleton-content">
+                <div class="skeleton-line skeleton-title"></div>
+                <div class="skeleton-line skeleton-subtitle"></div>
+                <div class="skeleton-line skeleton-text"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Enhanced Movies Container -->
+<div class="movies-container" *ngIf="!isLoading">
+    <div class="empty-state" *ngIf="filteredMovies.length === 0 && !isLoading">
+        <mat-icon class="empty-icon">movie_filter</mat-icon>
+        <h3>No movies found</h3>
+        <p>Try adjusting your search or filter criteria</p>
+        <button mat-raised-button color="primary" (click)="clearFilters()">Clear Filters</button>
+    </div>
+
+    <mat-card *ngFor="let movie of filteredMovies; trackBy: trackByMovieId" class="movie-card"
+        [class.favorite]="isFavorite(movie._id)">
+
+        <div class="card-image-container">
+            <img [src]="movie.imageURL" [alt]="movie.title" class="movie-image" />
+            <div class="image-overlay">
+                <button mat-fab mini color="accent" (click)="openSynopsisDialog(movie)" class="play-button">
+                    <mat-icon>play_arrow</mat-icon>
+                </button>
+            </div>
+            <div class="rating-badge">
+                <mat-icon class="star-icon">star</mat-icon>
+                <span>{{movie.rating}}</span>
+            </div>
+        </div>
+
+        <mat-card-header class="enhanced-header">
+            <mat-card-title class="movie-title">{{movie.title}}</mat-card-title>
+            <mat-card-subtitle class="movie-director">
+                <mat-icon class="subtitle-icon">person</mat-icon>
+                {{movie.director?.name}}
+            </mat-card-subtitle>
+            <mat-card-subtitle class="movie-genre">
+                <mat-icon class="subtitle-icon">category</mat-icon>
+                {{movie.genre?.name}}
+            </mat-card-subtitle>
         </mat-card-header>
-        <!-- backend sends imageURL rather than ImagePath -->
-        <img src="{{movie.imageURL}}" alt="{{movie.title}}" />
-        <mat-card-actions>
-            <div class="action-buttons">
-                <button mat-button color="primary" (click)="openGenreDialog(movie.genre)">
+
+        <mat-card-actions class="enhanced-actions">
+            <div class="primary-actions">
+                <button mat-stroked-button color="primary" (click)="openGenreDialog(movie.genre)" class="action-btn">
                     <mat-icon>category</mat-icon>
                     Genre
                 </button>
-                <button mat-button color="primary" (click)="openDirectorDialog(movie.director)">
+                <button mat-stroked-button color="primary" (click)="openDirectorDialog(movie.director)"
+                    class="action-btn">
                     <mat-icon>person</mat-icon>
                     Director
                 </button>
-                <button mat-button color="primary" (click)="openSynopsisDialog(movie)">
+                <button mat-stroked-button color="primary" (click)="openSynopsisDialog(movie)" class="action-btn">
                     <mat-icon>info</mat-icon>
-                    Synopsis
+                    Details
                 </button>
             </div>
-            <button mat-icon-button [color]="isFavorite(movie._id) ? 'warn' : 'primary'" (click)="toggleFavorite(movie)"
-                [matTooltip]="isFavorite(movie._id) ? 'Remove from favorites' : 'Add to favorites'">
+
+            <button mat-fab mini [color]="isFavorite(movie._id) ? 'warn' : 'primary'" (click)="toggleFavorite(movie)"
+                [matTooltip]="isFavorite(movie._id) ? 'Remove from favorites' : 'Add to favorites'"
+                class="favorite-btn">
                 <mat-icon>{{ isFavorite(movie._id) ? 'favorite' : 'favorite_border' }}</mat-icon>
             </button>
         </mat-card-actions>

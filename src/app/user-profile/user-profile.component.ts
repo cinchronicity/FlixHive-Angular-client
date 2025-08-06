@@ -28,6 +28,16 @@ export class UserProfileComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Check if user is authenticated
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.snackBar.open('Please log in to view your profile', 'OK', {
+        duration: 3000,
+      });
+      this.router.navigate(['welcome']);
+      return;
+    }
+
     this.getUser();
     this.getFavoriteMovies();
   }
@@ -36,17 +46,25 @@ export class UserProfileComponent implements OnInit {
    * Get user profile data
    */
   getUser(): void {
-    this.fetchApiData.getUser().subscribe((resp: any) => {
-      this.user = resp;
-      this.userData = {
-        Username: this.user.Username,
-        Password: '',
-        Email: this.user.Email,
-        Birthday: this.user.Birthday
-          ? new Date(this.user.Birthday).toISOString().split('T')[0]
-          : '',
-      };
-    });
+    this.fetchApiData.getUser().subscribe(
+      (resp: any) => {
+        this.user = resp;
+        this.userData = {
+          Username: this.user.username, // API returns lowercase 'username'
+          Password: '',
+          Email: this.user.email, // API returns lowercase 'email'
+          Birthday: this.user.birthdate
+            ? new Date(this.user.birthdate).toISOString().split('T')[0] // API returns 'birthdate'
+            : '',
+        };
+      },
+      (error) => {
+        console.error('Error getting user data:', error);
+        this.snackBar.open('Failed to load user profile', 'OK', {
+          duration: 3000,
+        });
+      }
+    );
   }
 
   /**
@@ -92,11 +110,11 @@ export class UserProfileComponent implements OnInit {
   cancelEdit(): void {
     this.isEditing = false;
     this.userData = {
-      Username: this.user.Username,
+      Username: this.user.username, // API returns lowercase 'username'
       Password: '',
-      Email: this.user.Email,
-      Birthday: this.user.Birthday
-        ? new Date(this.user.Birthday).toISOString().split('T')[0]
+      Email: this.user.email, // API returns lowercase 'email'
+      Birthday: this.user.birthdate
+        ? new Date(this.user.birthdate).toISOString().split('T')[0] // API returns 'birthdate'
         : '',
     };
   }

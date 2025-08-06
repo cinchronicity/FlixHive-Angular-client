@@ -1,7 +1,7 @@
 <div class="user-profile-container">
   <mat-card class="profile-card">
     <mat-card-header>
-      <mat-card-title>User Profile</mat-card-title>
+      <!-- <mat-card-title>User Profile</mat-card-title> -->
       <div class="header-actions">
         <button mat-icon-button routerLink="/movies" matTooltip="Back to Movies">
           <mat-icon>movie</mat-icon>
@@ -20,15 +20,15 @@
         <div *ngIf="!isEditing" class="view-mode">
           <div class="profile-field">
             <label>Username:</label>
-            <span>{{ user.Username }}</span>
+            <span>{{ user?.username || 'No username found' }}</span>
           </div>
           <div class="profile-field">
             <label>Email:</label>
-            <span>{{ user.Email }}</span>
+            <span>{{ user?.email || 'No email found' }}</span>
           </div>
           <div class="profile-field">
             <label>Birthday:</label>
-            <span>{{ user.Birthday | date:'shortDate' }}</span>
+            <span>{{ user?.birthdate ? (user.birthdate | date:'shortDate') : 'No birthday found' }}</span>
           </div>
 
           <div class="action-buttons">
